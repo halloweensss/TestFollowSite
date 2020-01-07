@@ -1,0 +1,15 @@
+/Users/halloween/RiderProjects/TestFollowSite/TestFollowSite/bin/Debug/netcoreapp2.1/NUnit3.TestAdapter.dll
+/Users/halloween/RiderProjects/TestFollowSite/TestFollowSite/bin/Debug/netcoreapp2.1/NUnit3.TestAdapter.pdb
+/Users/halloween/RiderProjects/TestFollowSite/TestFollowSite/bin/Debug/netcoreapp2.1/nunit.engine.netstandard.dll
+/Users/halloween/RiderProjects/TestFollowSite/TestFollowSite/bin/Debug/netcoreapp2.1/Mono.Cecil.dll
+/Users/halloween/RiderProjects/TestFollowSite/TestFollowSite/bin/Debug/netcoreapp2.1/TestFollowSite.deps.json
+/Users/halloween/RiderProjects/TestFollowSite/TestFollowSite/bin/Debug/netcoreapp2.1/TestFollowSite.runtimeconfig.json
+/Users/halloween/RiderProjects/TestFollowSite/TestFollowSite/bin/Debug/netcoreapp2.1/TestFollowSite.runtimeconfig.dev.json
+/Users/halloween/RiderProjects/TestFollowSite/TestFollowSite/bin/Debug/netcoreapp2.1/TestFollowSite.dll
+/Users/halloween/RiderProjects/TestFollowSite/TestFollowSite/bin/Debug/netcoreapp2.1/TestFollowSite.pdb
+/Users/halloween/RiderProjects/TestFollowSite/TestFollowSite/obj/Debug/netcoreapp2.1/TestFollowSite.csprojAssemblyReference.cache
+/Users/halloween/RiderProjects/TestFollowSite/TestFollowSite/obj/Debug/netcoreapp2.1/TestFollowSite.csproj.CoreCompileInputs.cache
+/Users/halloween/RiderProjects/TestFollowSite/TestFollowSite/obj/Debug/netcoreapp2.1/TestFollowSite.AssemblyInfoInputs.cache
+/Users/halloween/RiderProjects/TestFollowSite/TestFollowSite/obj/Debug/netcoreapp2.1/TestFollowSite.AssemblyInfo.cs
+/Users/halloween/RiderProjects/TestFollowSite/TestFollowSite/obj/Debug/netcoreapp2.1/TestFollowSite.dll
+/Users/halloween/RiderProjects/TestFollowSite/TestFollowSite/obj/Debug/netcoreapp2.1/TestFollowSite.pdb
