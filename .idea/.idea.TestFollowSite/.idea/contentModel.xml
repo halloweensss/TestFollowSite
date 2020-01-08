@@ -30,6 +30,7 @@
           <e p="IPage.cs" t="Include" />
           <e p="LoginPage.cs" t="Include" />
           <e p="RegisterPage.cs" t="Include" />
+          <e p="SettingsPage.cs" t="Include" />
         </e>
         <e p="TestFollowSite.csproj" t="IncludeRecursive" />
         <e p="UnitTest1.cs" t="Include" />

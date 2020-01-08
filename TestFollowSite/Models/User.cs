@@ -13,6 +13,8 @@ namespace Tests.Models
         public string NameService { get; set; }
         public Gender Gender { get; set; }
 
+        public string FilePath { get; set; }
+
         public static User GetValidUserForLogin()
         {
             return new User()

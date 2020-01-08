@@ -214,5 +214,21 @@ namespace Tests
                 
             }
         }*/
+        
+        [Test]
+        public void SuccessSettings()
+        {
+            LoginPage loginPage = new LoginPage(_driver);
+            User user = User.GetValidUserForLogin();
+            user.FilePath = @"/Users/halloween/Downloads/white_mountains_peaks_lake_reflection_nature-wallpaper-1440x2560.jpg";
+            try
+            {
+                Assert.True(loginPage.Navigate().FillUser(user).Submit().ToSettings().FillUser(user).Submit().ToHome().ToLogin().AreEqual());
+            }
+            catch (Exception e)
+            {
+                
+            }
+        }
     }
 }

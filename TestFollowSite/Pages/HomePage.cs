@@ -47,6 +47,7 @@ namespace Tests.Pages
         private static string FOLLOW_BUTTON_SUBSCRIBE = "Подписаться";
         private static string FOLLOW_BUTTON_UNSUBSCRIBE = "Отписаться";
         private static string LOGIN_PAGE_REGISTER = "toRegister";
+        private static string SETTINGS_PAGE_AVATAR_CLASS = "avatar-input";
         
         
         public HomePage(IWebDriver driver)
@@ -164,6 +165,27 @@ namespace Tests.Pages
 
             return null;
         }
+
+        public SettingsPage ToSettings()
+        {
+            _userNameInput.Click();
+            _settingsInput.Click();
+            _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(5);
+            try
+            {
+                if (_driver.FindElement(By.ClassName(SETTINGS_PAGE_AVATAR_CLASS)) != null)
+                {
+                    return new SettingsPage(_driver);
+                }
+            }
+            catch (Exception e)
+            {
+                
+            }
+
+            return null;
+        }
+        
         public HomePage Navigate()
         {
             _driver.Navigate().GoToUrl(_url);
