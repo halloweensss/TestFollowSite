@@ -17,7 +17,6 @@ namespace Tests
         public void OneTimeSetUp()
         {
             _driver = new ChromeDriver("/Users/halloween/RiderProjects/TestFollowSite/TestFollowSite/bin/Debug/netcoreapp2.1/");
-            _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(2);
         }
         
         [OneTimeTearDown]
@@ -25,7 +24,7 @@ namespace Tests
         {
             _driver.Quit();
         }
-
+/*
         [Test]
         public void FailedRegistrationTest()
         {
@@ -64,6 +63,28 @@ namespace Tests
             {
                 HomePage homePage = registerPage.Navigate().FillUser(user).Submit();
                 Assert.NotNull(homePage);
+            }
+            catch (Exception e)
+            {
+                
+            }
+        }
+*/
+        [Test]
+        public void TransitionBetweenLoginAndRegisterPages()
+        {
+            LoginPage loginPage = new LoginPage(_driver);
+            try
+            {
+                RegisterPage registerPage = loginPage.Navigate().ToRegister();
+                User user = User.GetRandomUser();
+                registerPage.FillUser(user);
+                Assert.True(registerPage.AreEqual());
+                loginPage = registerPage.ToLogin();
+                Assert.True(loginPage.AreEqual());
+                user = User.GetValidUserForLogin();
+                HomePage homePage = loginPage.FillUser(user).Submit();
+                Assert.True(homePage.AreEqual());
             }
             catch (Exception e)
             {

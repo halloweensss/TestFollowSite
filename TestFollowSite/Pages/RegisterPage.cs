@@ -44,6 +44,7 @@ namespace Tests.Pages
         private static readonly string PASSWORD_LESS_CHARACTER = "passwordLessCharacter";
         private static readonly string GENDER_EMPTY = "genderEmpty";
         private static readonly string HOME_PAGE_NICKNAME = "userName";
+        private static readonly string LOGIN_PAGE_REGISTER = "toRegister";
         
         
         public RegisterPage(IWebDriver driver)
@@ -76,6 +77,7 @@ namespace Tests.Pages
         public HomePage Submit()
         {
             _submitButton.Click();
+            _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromMilliseconds(200);
             try
             {
                 if (_driver.FindElement(By.Id(LOGIN_EMPTY)) != null)
@@ -117,7 +119,8 @@ namespace Tests.Pages
             {
                 
             }
-
+            
+            _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(5);
             try
             {
                 if (_driver.FindElement(By.Id(HOME_PAGE_NICKNAME)) != null)
@@ -133,15 +136,33 @@ namespace Tests.Pages
             return null;
         }
 
-        public LoginPage Exit()
+        public LoginPage ToLogin()
         {
             _exitButton.Click();
-            return new LoginPage();
+            _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(2);
+            try
+            {
+                if (_driver.FindElement(By.Id(LOGIN_PAGE_REGISTER)) != null)
+                {
+                    return new LoginPage(_driver);
+                }
+            }
+            catch (Exception e)
+            {
+                
+            }
+
+            return null;
         }
 
         public string GetPageName()
         {
             return "Регистрация";
+        }
+
+        public bool AreEqual()
+        {
+            return _driver.Title == GetPageName();
         }
     }
 }
