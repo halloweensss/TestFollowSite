@@ -24,7 +24,7 @@ namespace Tests
         {
             _driver.Quit();
         }
-/*
+
         [Test]
         public void FailedRegistration()
         {
@@ -161,8 +161,8 @@ namespace Tests
                 Assert.AreEqual("Password is incorrect", e.Message);   
             }
         }
-        */
-/*
+        
+
         [Test]
         public void SuccessFollow()
         {
@@ -198,8 +198,8 @@ namespace Tests
                 Assert.AreEqual("", e.Message);
             }
         }
-        */
-        /*
+        
+        
         [Test]
         public void LoginHomeLoginRegister()
         {
@@ -213,7 +213,7 @@ namespace Tests
             {
                 
             }
-        }*/
+        }
         
         [Test]
         public void SuccessSettings()
