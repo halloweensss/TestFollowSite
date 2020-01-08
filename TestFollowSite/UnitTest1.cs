@@ -63,14 +63,15 @@ namespace Tests
             {
                 HomePage homePage = registerPage.Navigate().FillUser(user).Submit();
                 Assert.NotNull(homePage);
+                homePage.ToLogin();
             }
             catch (Exception e)
             {
                 
             }
         }
-*/
-/*
+
+
         [Test]
         public void TransitionBetweenLoginAndRegisterPages()
         {
@@ -92,7 +93,7 @@ namespace Tests
                 
             }
         }
-*/
+
 
         [Test]
         public void SuccessLogin()
@@ -103,6 +104,7 @@ namespace Tests
             {
                 HomePage homePage = loginPage.Navigate().FillUser(user).Submit();
                 Assert.True(homePage.AreEqual());
+                homePage.ToLogin();
             }
             catch (Exception e)
             {
@@ -159,5 +161,58 @@ namespace Tests
                 Assert.AreEqual("Password is incorrect", e.Message);   
             }
         }
+        */
+/*
+        [Test]
+        public void SuccessFollow()
+        {
+            LoginPage loginPage = new LoginPage(_driver);
+            User user = User.GetValidUserForLogin();
+            try
+            {
+                HomePage homePage = loginPage.Navigate().FillUser(user).Submit();
+                homePage.Follow("apple").Follow("wylsacom").Follow("anubeloredelana");
+                homePage.Navigate();
+                homePage.ToLogin();
+            }
+            catch (Exception e)
+            {
+                Assert.AreEqual("", e.Message);
+            }
+        }
+
+        [Test]
+        public void SuccessUnfollow()
+        {
+            LoginPage loginPage = new LoginPage(_driver);
+            User user = User.GetValidUserForLogin();
+            try
+            {
+                HomePage homePage = loginPage.Navigate().FillUser(user).Submit();
+                homePage.Unfollow("apple").Unfollow("wylsacom").Unfollow("anubeloredelana");
+                homePage.Navigate();
+                homePage.ToLogin();
+            }
+            catch (Exception e)
+            {
+                Assert.AreEqual("", e.Message);
+            }
+        }
+        */
+        /*
+        [Test]
+        public void LoginHomeLoginRegister()
+        {
+            LoginPage loginPage = new LoginPage(_driver);
+            User user = User.GetValidUserForLogin();
+            try
+            {
+                Assert.True(loginPage.Navigate().FillUser(user).Submit().ToLogin().ToRegister().FillUser(user).AreEqual());
+            }
+            catch (Exception exception)
+            {
+                
+            }
+        }*/
     }
 }

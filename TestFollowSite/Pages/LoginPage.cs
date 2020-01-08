@@ -37,7 +37,6 @@ namespace Tests.Pages
         {
             _driver = driver;
             PageFactory.InitElements(driver,this);
-            
         }
         
         public LoginPage Navigate()
