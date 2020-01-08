@@ -27,6 +27,7 @@
         </e>
         <e p="Pages" t="Include">
           <e p="HomePage.cs" t="Include" />
+          <e p="IPage.cs" t="Include" />
           <e p="LoginPage.cs" t="Include" />
           <e p="RegisterPage.cs" t="Include" />
         </e>

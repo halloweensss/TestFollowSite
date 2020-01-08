@@ -1,3 +1,4 @@
+using System;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
 using SeleniumExtras.PageObjects;
@@ -5,10 +6,10 @@ using Tests.Models;
 
 namespace Tests.Pages
 {
-    public class RegisterPage
+    public class RegisterPage : IPage
     {
         private readonly IWebDriver _driver;
-        private readonly string _url = @"http://127.0.0.1:8083/register";
+        private readonly string _url = @"http://127.0.0.1:8080/register";
         
         [FindsBy(How = How.Id, Using = "login")] 
         private IWebElement _loginInput;
@@ -34,6 +35,17 @@ namespace Tests.Pages
         [FindsBy(How = How.Id, Using = "exit")] 
         private IWebElement _exitButton;
 
+
+        private static readonly string LOGIN_EMPTY = "loginEmpty";
+        private static readonly string LOGIN_LESS_CHARACTER = "loginLessCharacters";
+        private static readonly string EMAIL_EMPTY = "emailEmpty";
+        private static readonly string EMAIL_INCORRECT = "emailIncorrect";
+        private static readonly string USER_EXIST = "userExist";
+        private static readonly string PASSWORD_LESS_CHARACTER = "passwordLessCharacter";
+        private static readonly string GENDER_EMPTY = "genderEmpty";
+        private static readonly string HOME_PAGE_NICKNAME = "userName";
+        
+        
         public RegisterPage(IWebDriver driver)
         {
             _driver = driver;
@@ -64,7 +76,61 @@ namespace Tests.Pages
         public HomePage Submit()
         {
             _submitButton.Click();
-            return new HomePage();
+            try
+            {
+                if (_driver.FindElement(By.Id(LOGIN_EMPTY)) != null)
+                {
+                    throw new Exception("Login is empty");
+                }
+
+                if (_driver.FindElement(By.Id(LOGIN_LESS_CHARACTER)) != null)
+                {
+                    throw new Exception("Login is small");
+                }
+
+                if (_driver.FindElement(By.Id(EMAIL_EMPTY)) != null)
+                {
+                    throw new Exception("Email is empty");
+                }
+
+                if (_driver.FindElement(By.Id(EMAIL_INCORRECT)) != null)
+                {
+                    throw new Exception("Email is incorrect");
+                }
+
+                if (_driver.FindElement(By.Id(USER_EXIST)) != null)
+                {
+                    throw new Exception("User exist");
+                }
+
+                if (_driver.FindElement(By.Id(PASSWORD_LESS_CHARACTER)) != null)
+                {
+                    throw new Exception("Password is small");
+                }
+
+                if (_driver.FindElement(By.Id(GENDER_EMPTY)) != null)
+                {
+                    throw new Exception("Gender is empty");
+                }
+            }
+            catch (Exception e)
+            {
+                
+            }
+
+            try
+            {
+                if (_driver.FindElement(By.Id(HOME_PAGE_NICKNAME)) != null)
+                {
+                    return new HomePage(_driver);
+                }
+            }
+            catch (Exception e)
+            {
+                
+            }
+
+            return null;
         }
 
         public LoginPage Exit()
@@ -73,5 +139,9 @@ namespace Tests.Pages
             return new LoginPage();
         }
 
+        public string GetPageName()
+        {
+            return "Регистрация";
+        }
     }
 }

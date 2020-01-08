@@ -23,7 +23,7 @@ namespace Tests.Models
             };
         }
 
-        public static User GetRandomUserForRegistration()
+        public static User GetRandomUser()
         {
             return new User()
             {
