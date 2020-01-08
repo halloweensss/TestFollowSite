@@ -26,7 +26,7 @@ namespace Tests
         }
 /*
         [Test]
-        public void FailedRegistrationTest()
+        public void FailedRegistration()
         {
             RegisterPage registerPage = new RegisterPage(_driver);
             User user = User.GetRandomUser();
@@ -55,7 +55,7 @@ namespace Tests
         }
 
         [Test]
-        public void SuccessRegistrationTest()
+        public void SuccessRegistration()
         {
             RegisterPage registerPage = new RegisterPage(_driver);
             User user = User.GetRandomUser();
@@ -70,6 +70,7 @@ namespace Tests
             }
         }
 */
+/*
         [Test]
         public void TransitionBetweenLoginAndRegisterPages()
         {
@@ -89,6 +90,73 @@ namespace Tests
             catch (Exception e)
             {
                 
+            }
+        }
+*/
+
+        [Test]
+        public void SuccessLogin()
+        {
+            LoginPage loginPage = new LoginPage(_driver);
+            User user = User.GetValidUserForLogin();
+            try
+            {
+                HomePage homePage = loginPage.Navigate().FillUser(user).Submit();
+                Assert.True(homePage.AreEqual());
+            }
+            catch (Exception e)
+            {
+                
+            }
+        }
+        
+
+        [Test]
+        public void FailedLogin()
+        {
+            LoginPage loginPage = new LoginPage(_driver);
+            User user = User.GetValidUserForLogin();
+            try
+            {
+                user.Email = "";
+                loginPage.Navigate().FillUser(user).Submit();
+            }
+            catch (Exception e)
+            {
+                Assert.AreEqual("Email is empty", e.Message);   
+            }
+            
+            user = User.GetValidUserForLogin();
+            try
+            {
+                user.Email = "teeeeeeest@test.te";
+                loginPage.Navigate().FillUser(user).Submit();
+            }
+            catch (Exception e)
+            {
+                Assert.AreEqual("Email is incorrect", e.Message);   
+            }
+            
+            user = User.GetValidUserForLogin();
+            try
+            {
+                user.Password = "";
+                loginPage.Navigate().FillUser(user).Submit();
+            }
+            catch (Exception e)
+            {
+                Assert.AreEqual("Password is empty", e.Message);   
+            }
+            
+            user = User.GetValidUserForLogin();
+            try
+            {
+                user.Password = "testtesttest";
+                loginPage.Navigate().FillUser(user).Submit();
+            }
+            catch (Exception e)
+            {
+                Assert.AreEqual("Password is incorrect", e.Message);   
             }
         }
     }
