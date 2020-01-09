@@ -5,13 +5,16 @@ using System.Threading;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
 using SeleniumExtras.PageObjects;
+using Tests.Exception;
+using Tests.Helpers;
+using Tests.Models;
 
 namespace Tests.Pages
 {
     public class HomePage : IPage
     {
         private IWebDriver _driver;
-        private readonly string _url = @"http://127.0.0.1:8080/";
+        private readonly string _url = @"http://127.0.0.1:8082/";
         
         [FindsBy(How = How.Id, Using = "pills-news-tab")] 
         private IWebElement _newsButton;
@@ -40,6 +43,11 @@ namespace Tests.Pages
         [FindsBy(How = How.ClassName, Using = "follow-container-items")] 
         private IWebElement _followContainer;
 
+        private static string POST_CLASS = "post";
+        private static string POST_ACCOUNT_NAME_CLASS = "account-name";
+        private static string POST_ACCOUNT_LOGIN_CLASS = "account-login";
+        private static string POST_CONTENT_TEXT_CLASS = "post-text";
+        private static string NO_FOLLOWS_CLASS = "text-follow-none";
         private static string FOLLOW_CONTAINER_ITEMS_CLASS = "follow-container-items";
         private static string FOLLOW_BUTTON_CLASS = "follow-button";
         private static string FOLLOW_NICKNAME_CLASS = "follow-nickname";
@@ -58,48 +66,27 @@ namespace Tests.Pages
 
         public HomePage Follow(string name)
         {
-            _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
-            WebDriverWait wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(10));
-            wait.Message = "Profile not found";
             name = name.ToLower();
             this.Navigate();
+            
             _followsButton.Click();
-            _suggetionInput.SendKeys(name);
-            _suggetionInput.SendKeys(Keys.Enter);
-            try
+            WebElementHelper.ValueInput(_suggetionInput, name);
+            if (!WebElementHelper.HasElementIn(_driver, _suggestionContainer, By.Id(name), TimeSpan.FromSeconds(10)))
             {
-
-                while(!wait.Until(d => _suggestionContainer.FindElements(By.Id(name)).Count > 0));
-                IWebElement element = _suggestionContainer.FindElement(By.Id(name));
-                string nameElement = element.FindElement(By.ClassName(FOLLOW_NICKNAME_CLASS)).Text.ToLower();
-                if (nameElement == name)
-                {
-                    IWebElement followButton = element.FindElement(By.ClassName(FOLLOW_BUTTON_CLASS));
-                    string followButtonText = followButton.Text;
-                    if (followButtonText == FOLLOW_BUTTON_UNSUBSCRIBE)
-                    {
-                        throw new Exception("Already subscribed");
-                    }
-                    
-                    followButton.Click();
-                    return this;
-                }
-
-                throw new Exception("Profile not found");
+                throw new MessageException("Profile not found");
             }
-            catch (Exception exception)
+
+            IWebElement element = _suggestionContainer.FindElement(By.Id(name));
+            IWebElement followButton = element.FindElement(By.ClassName(FOLLOW_BUTTON_CLASS));
+            
+            string followButtonText = followButton.Text;
+            if (followButtonText == FOLLOW_BUTTON_UNSUBSCRIBE)
             {
-                if (exception.Message.Contains("stale"))
-                {
-                    IWebElement element = _suggestionContainer.FindElement(By.Id(name));
-                    IWebElement followButton = element.FindElement(By.ClassName(FOLLOW_BUTTON_CLASS));
-                    followButton.Click();
-                }
-                else
-                {
-                    throw exception;
-                }
+                throw new MessageException("Already subscribed");
             }
+
+            followButton.Click();
+            while (!WebElementHelper.HasElementIn(_driver, _followContainer, By.Id(name), TimeSpan.FromSeconds(1)));
 
             return this;
         }
@@ -107,60 +94,122 @@ namespace Tests.Pages
         public HomePage Unfollow(string name)
         {
             name = name.ToLower();
-            this.Navigate();
             _followsButton.Click();
-            _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromMilliseconds(5);
-            try
-            {
-                WebDriverWait wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(10));
-                wait.Message = "Profile not found";
-                if (wait.Until(d => _followContainer.FindElements(By.ClassName(FOLLOW_CARD)).Count > 0) == false)
-                {
-                    throw new Exception("Profile not found");
-                }
 
-                int countElements = _followContainer.FindElements(By.ClassName(FOLLOW_CARD)).Count;
+            if (!WebElementHelper.HasElementIn(_driver, _followContainer, By.ClassName(FOLLOW_CARD),
+                TimeSpan.FromSeconds(1)))
+            {
+                throw new MessageException("Follow is empty");
+            }
+
+            if (!WebElementHelper.HasElementIn(_driver, _followContainer, By.Id(name),
+                TimeSpan.FromSeconds(1)))
+            {
+                throw new MessageException("Profile not found");
+            }
+
+            IWebElement element = _followContainer.FindElement(By.Id(name));
+            IWebElement followButton = element.FindElement(By.ClassName(FOLLOW_BUTTON_CLASS));
+            
+            followButton.Click();
+            while (WebElementHelper.HasElementIn(_driver, _followContainer, By.Id(name), TimeSpan.FromSeconds(1)));
+            
+            return this;
+        }
+
+        public List<FollowUser> GetFollows()
+        {
+            _followsButton.Click();
+
+            if (!WebElementHelper.HasElementIn(_driver, _followContainer, By.ClassName(FOLLOW_CARD),
+                TimeSpan.FromSeconds(1)))
+            {
+                throw new MessageException("Follow is empty");
+            }
+
+            ReadOnlyCollection<IWebElement> elements = _followContainer.FindElements(By.ClassName(FOLLOW_CARD));
+            List<FollowUser> users = new List<FollowUser>();
+            
+            foreach (var element in elements)
+            {
+                string name = element.FindElement(By.ClassName(FOLLOW_NICKNAME_CLASS)).Text;
+                FollowUser user = new FollowUser()
+                {
+                    Name = name
+                };
                 
-                while (!wait.Until(d => _followContainer.FindElements(By.Id(name)).Count > 0)) ;
-                IWebElement element = _followContainer.FindElement(By.Id(name));
-                IWebElement elementUnfollow = element.FindElement(By.ClassName(FOLLOW_NICKNAME_CLASS));
-                string nameElement = elementUnfollow.Text.ToLower();
-                if (nameElement == name)
-                {
-                    IWebElement followButton = element.FindElement(By.ClassName(FOLLOW_BUTTON_CLASS));
-                    followButton.Click();
-                    if (wait.Until(d =>
-                        _followContainer.FindElements(By.ClassName(FOLLOW_CARD)).Count < countElements))
-                    {
-                        return this;
-                    }
-
-                    followButton.Click();
-                }
-
-                throw new Exception("Profile not found");
+                users.Add(user);
             }
-            catch (Exception exception)
+
+            return users;
+        }
+
+        public FollowUser GetFollowByName(string name)
+        {
+            _followsButton.Click();
+            
+            name = name.ToLower();
+            if (!WebElementHelper.HasElementIn(_driver, _followContainer, By.Id(name),
+                TimeSpan.FromSeconds(1)))
             {
-                throw exception;
+                throw new MessageException("Profile not found");
             }
+            
+            IWebElement element = _followContainer.FindElement(By.Id(name));
+            string nickname = element.FindElement(By.ClassName(FOLLOW_NICKNAME_CLASS)).Text;
+
+            FollowUser user = new FollowUser()
+            {
+                Name = nickname
+            };
+
+            return user;
+        }
+
+        public List<Post> GetPosts()
+        {
+            _newsButton.Click();
+
+            if (WebElementHelper.HasElement(_driver, By.ClassName(NO_FOLLOWS_CLASS), TimeSpan.FromSeconds(2)))
+            {
+                throw new MessageException("No follows");
+            }
+            
+            if (!WebElementHelper.HasElementIn(_driver, _masonryContainer, By.ClassName(POST_CLASS), TimeSpan.FromSeconds(10)))
+            {
+                throw new MessageException("Posts not found");
+            }
+            
+            ReadOnlyCollection<IWebElement> elements = _masonryContainer.FindElements(By.ClassName(POST_CLASS));
+            List<Post> posts = new List<Post>();
+
+            foreach (var element in elements)
+            {
+                string accountName = element.FindElement(By.ClassName(POST_ACCOUNT_NAME_CLASS)).Text;
+                string accountLogin = element.FindElement(By.ClassName(POST_ACCOUNT_LOGIN_CLASS)).Text;
+                string contentText = element.FindElement(By.ClassName(POST_CONTENT_TEXT_CLASS))
+                    .FindElement(By.TagName("p")).Text;
+                Post post = new Post()
+                {
+                    Name = accountName,
+                    Login = accountLogin,
+                    Text = contentText
+                };
+                
+                posts.Add(post);
+            }
+
+            return posts;
         }
 
         public LoginPage ToLogin()
         {
             _userNameInput.Click();
             _exitInput.Click();
-            _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(5);
-            try
+
+            if (WebElementHelper.HasElement(_driver, By.Id(LOGIN_PAGE_REGISTER), TimeSpan.FromSeconds(2)))
             {
-                if (_driver.FindElement(By.Id(LOGIN_PAGE_REGISTER)) != null)
-                {
-                    return new LoginPage(_driver);
-                }
-            }
-            catch (Exception e)
-            {
-                
+                return new LoginPage(_driver);
             }
 
             return null;
@@ -170,22 +219,15 @@ namespace Tests.Pages
         {
             _userNameInput.Click();
             _settingsInput.Click();
-            _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(5);
-            try
+
+            if (WebElementHelper.HasElement(_driver, By.ClassName(SETTINGS_PAGE_AVATAR_CLASS), TimeSpan.FromSeconds(2)))
             {
-                if (_driver.FindElement(By.ClassName(SETTINGS_PAGE_AVATAR_CLASS)) != null)
-                {
-                    return new SettingsPage(_driver);
-                }
-            }
-            catch (Exception e)
-            {
-                
+                return new SettingsPage(_driver);
             }
 
             return null;
         }
-        
+
         public HomePage Navigate()
         {
             _driver.Navigate().GoToUrl(_url);

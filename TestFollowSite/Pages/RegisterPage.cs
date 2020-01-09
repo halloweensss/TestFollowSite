@@ -2,6 +2,8 @@ using System;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
 using SeleniumExtras.PageObjects;
+using Tests.Exception;
+using Tests.Helpers;
 using Tests.Models;
 
 namespace Tests.Pages
@@ -9,7 +11,7 @@ namespace Tests.Pages
     public class RegisterPage : IPage
     {
         private readonly IWebDriver _driver;
-        private readonly string _url = @"http://127.0.0.1:8080/register";
+        private readonly string _url = @"http://127.0.0.1:8082/register";
         
         [FindsBy(How = How.Id, Using = "login")] 
         private IWebElement _loginInput;
@@ -77,60 +79,44 @@ namespace Tests.Pages
         public HomePage Submit()
         {
             _submitButton.Click();
-            _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromMilliseconds(200);
-            try
+            if (WebElementHelper.HasElement(_driver, By.Id(LOGIN_EMPTY), TimeSpan.FromMilliseconds(50)))
             {
-                if (_driver.FindElement(By.Id(LOGIN_EMPTY)) != null)
-                {
-                    throw new Exception("Login is empty");
-                }
-
-                if (_driver.FindElement(By.Id(LOGIN_LESS_CHARACTER)) != null)
-                {
-                    throw new Exception("Login is small");
-                }
-
-                if (_driver.FindElement(By.Id(EMAIL_EMPTY)) != null)
-                {
-                    throw new Exception("Email is empty");
-                }
-
-                if (_driver.FindElement(By.Id(EMAIL_INCORRECT)) != null)
-                {
-                    throw new Exception("Email is incorrect");
-                }
-
-                if (_driver.FindElement(By.Id(USER_EXIST)) != null)
-                {
-                    throw new Exception("User exist");
-                }
-
-                if (_driver.FindElement(By.Id(PASSWORD_LESS_CHARACTER)) != null)
-                {
-                    throw new Exception("Password is small");
-                }
-
-                if (_driver.FindElement(By.Id(GENDER_EMPTY)) != null)
-                {
-                    throw new Exception("Gender is empty");
-                }
+                throw new MessageException("Login is empty");
             }
-            catch (Exception e)
+
+            if (WebElementHelper.HasElement(_driver, By.Id(LOGIN_LESS_CHARACTER), TimeSpan.FromMilliseconds(50)))
             {
-                
+                throw new MessageException("Login is small");
             }
-            
-            _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(5);
-            try
+
+            if (WebElementHelper.HasElement(_driver, By.Id(EMAIL_EMPTY), TimeSpan.FromMilliseconds(50)))
             {
-                if (_driver.FindElement(By.Id(HOME_PAGE_NICKNAME)) != null)
-                {
-                    return new HomePage(_driver);
-                }
+                throw new MessageException("Email is empty");
             }
-            catch (Exception e)
+
+            if (WebElementHelper.HasElement(_driver, By.Id(EMAIL_INCORRECT), TimeSpan.FromMilliseconds(50)))
             {
-                
+                throw new MessageException("Email is incorrect");
+            }
+
+            if (WebElementHelper.HasElement(_driver, By.Id(USER_EXIST), TimeSpan.FromMilliseconds(50)))
+            {
+                throw new MessageException("User exist");
+            }
+
+            if (WebElementHelper.HasElement(_driver, By.Id(PASSWORD_LESS_CHARACTER), TimeSpan.FromMilliseconds(50)))
+            {
+                throw new MessageException("Password is small");
+            }
+
+            if (WebElementHelper.HasElement(_driver, By.Id(GENDER_EMPTY), TimeSpan.FromMilliseconds(50)))
+            {
+                throw new MessageException("Gender is empty");
+            }
+
+            if (WebElementHelper.HasElement(_driver, By.Id(HOME_PAGE_NICKNAME), TimeSpan.FromSeconds(1)))
+            {
+                return new HomePage(_driver);
             }
 
             return null;
@@ -139,17 +125,9 @@ namespace Tests.Pages
         public LoginPage ToLogin()
         {
             _exitButton.Click();
-            _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(2);
-            try
+            if (WebElementHelper.HasElement(_driver, By.Id(LOGIN_PAGE_REGISTER), TimeSpan.FromSeconds(2)))
             {
-                if (_driver.FindElement(By.Id(LOGIN_PAGE_REGISTER)) != null)
-                {
-                    return new LoginPage(_driver);
-                }
-            }
-            catch (Exception e)
-            {
-                
+                return new LoginPage(_driver);
             }
 
             return null;

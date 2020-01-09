@@ -1,6 +1,9 @@
 using System;
 using OpenQA.Selenium;
+using OpenQA.Selenium.Support.UI;
 using SeleniumExtras.PageObjects;
+using Tests.Exception;
+using Tests.Helpers;
 using Tests.Models;
 
 namespace Tests.Pages
@@ -8,7 +11,8 @@ namespace Tests.Pages
     public class LoginPage: IPage
     {
         private IWebDriver _driver;
-        private readonly string _url = @"http://127.0.0.1:8080/login";
+        private WebDriverWait _driverWait;
+        private readonly string _url = @"http://127.0.0.1:8082/login";
         
         [FindsBy(How = How.Id, Using = "email")] 
         private IWebElement _emailInput;
@@ -56,50 +60,34 @@ namespace Tests.Pages
         public HomePage Submit()
         {
             _submitButton.Click();
-            _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromMilliseconds(200);
-            try
+            if (WebElementHelper.HasElement(_driver, By.Id(EMAIL_EMPTY),TimeSpan.FromMilliseconds(50)))
             {
-                if (_driver.FindElement(By.Id(EMAIL_EMPTY)) != null)
-                {
-                    throw new Exception("Email is empty");
-                }
+                throw new MessageException("Email is empty");
+            }
 
-                if (_driver.FindElement(By.Id(EMAIL_INCORRECT)) != null)
-                {
-                    throw new Exception("Email is incorrect");
-                }
-                
-                if (_driver.FindElement(By.Id(USER_NOT_FOUND)) != null)
-                {
-                    throw new Exception("User not created");
-                }
-                
-                if (_driver.FindElement(By.Id(PASSWORD_EMPTY)) != null)
-                {
-                    throw new Exception("Password is empty");
-                }
-                
-                if (_driver.FindElement(By.Id(PASSWORD_INCORRECT)) != null)
-                {
-                    throw new Exception("Password is incorrect");
-                }
-            }
-            catch (Exception e)
+            if (WebElementHelper.HasElement(_driver, By.Id(EMAIL_INCORRECT),TimeSpan.FromMilliseconds(50)))
             {
-                
+                throw new MessageException("Email is incorrect");
             }
-            
-            _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(5);
-            try
+
+            if (WebElementHelper.HasElement(_driver, By.Id(USER_NOT_FOUND),TimeSpan.FromMilliseconds(50)))
             {
-                if (_driver.FindElement(By.Id(HOME_PAGE_NICKNAME)) != null)
-                {
-                    return new HomePage(_driver);
-                }
+                throw new MessageException("User not created");
             }
-            catch (Exception e)
+
+            if (WebElementHelper.HasElement(_driver, By.Id(PASSWORD_EMPTY),TimeSpan.FromMilliseconds(50)))
             {
-                
+                throw new MessageException("Password is empty");
+            }
+
+            if (WebElementHelper.HasElement(_driver, By.Id(PASSWORD_INCORRECT),TimeSpan.FromMilliseconds(50)))
+            {
+                throw new MessageException("Password is incorrect");
+            }
+
+            if (WebElementHelper.HasElement(_driver, By.Id(HOME_PAGE_NICKNAME), TimeSpan.FromSeconds(1)))
+            {
+                return new HomePage(_driver);
             }
 
             return null;
@@ -107,23 +95,14 @@ namespace Tests.Pages
 
         public RegisterPage ToRegister()
         {
-            _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(2);
             _registerButton.Click();
-            try
+            if (WebElementHelper.HasElement(_driver,By.Id(REGISTER_PAGE), TimeSpan.FromSeconds(1)))
             {
-                if (_driver.FindElement(By.Id(REGISTER_PAGE)) != null)
-                {
-                    return new RegisterPage(_driver);
-                }
+                return new RegisterPage(_driver);
             }
-            catch (Exception e)
-            {
-                
-            }
-
             return null;
         }
-        
+
         public string GetPageName()
         {
             return "Вход";

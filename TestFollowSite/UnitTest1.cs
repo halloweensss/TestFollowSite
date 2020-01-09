@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Safari;
+using Tests.Exception;
 using Tests.Helpers;
 using Tests.Models;
 using Tests.Pages;
@@ -17,6 +19,7 @@ namespace Tests
         public void OneTimeSetUp()
         {
             _driver = new ChromeDriver("/Users/halloween/RiderProjects/TestFollowSite/TestFollowSite/bin/Debug/netcoreapp2.1/");
+            _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
         }
         
         [OneTimeTearDown]
@@ -36,7 +39,7 @@ namespace Tests
             {
                 registerPage.Navigate().FillUser(user).Submit();
             }
-            catch (Exception e)
+            catch (MessageException e)
             {
                 Assert.AreEqual("Login is empty",e.Message);
             }
@@ -48,7 +51,7 @@ namespace Tests
             {
                 registerPage.Navigate().FillUser(user).Submit();
             }
-            catch (Exception e)
+            catch (MessageException e)
             {
                 Assert.AreEqual("Email is incorrect",e.Message);
             }
@@ -59,16 +62,9 @@ namespace Tests
         {
             RegisterPage registerPage = new RegisterPage(_driver);
             User user = User.GetRandomUser();
-            try
-            {
-                HomePage homePage = registerPage.Navigate().FillUser(user).Submit();
-                Assert.NotNull(homePage);
-                homePage.ToLogin();
-            }
-            catch (Exception e)
-            {
-                
-            }
+            HomePage homePage = registerPage.Navigate().FillUser(user).Submit();
+            Assert.NotNull(homePage);
+            homePage.ToLogin();
         }
 
 
@@ -76,42 +72,26 @@ namespace Tests
         public void TransitionBetweenLoginAndRegisterPages()
         {
             LoginPage loginPage = new LoginPage(_driver);
-            try
-            {
-                RegisterPage registerPage = loginPage.Navigate().ToRegister();
-                User user = User.GetRandomUser();
-                registerPage.FillUser(user);
-                Assert.True(registerPage.AreEqual());
-                loginPage = registerPage.ToLogin();
-                Assert.True(loginPage.AreEqual());
-                user = User.GetValidUserForLogin();
-                HomePage homePage = loginPage.FillUser(user).Submit();
-                Assert.True(homePage.AreEqual());
-            }
-            catch (Exception e)
-            {
-                
-            }
+            RegisterPage registerPage = loginPage.Navigate().ToRegister();
+            User user = User.GetRandomUser();
+            registerPage.FillUser(user);
+            Assert.True(registerPage.AreEqual());
+            loginPage = registerPage.ToLogin();
+            Assert.True(loginPage.AreEqual());
+            user = User.GetValidUserForLogin();
+            HomePage homePage = loginPage.FillUser(user).Submit();
+            Assert.True(homePage.AreEqual());
         }
-
 
         [Test]
         public void SuccessLogin()
         {
             LoginPage loginPage = new LoginPage(_driver);
             User user = User.GetValidUserForLogin();
-            try
-            {
-                HomePage homePage = loginPage.Navigate().FillUser(user).Submit();
-                Assert.True(homePage.AreEqual());
-                homePage.ToLogin();
-            }
-            catch (Exception e)
-            {
-                
-            }
+            HomePage homePage = loginPage.Navigate().FillUser(user).Submit();
+            Assert.True(homePage.AreEqual());
+            homePage.ToLogin();
         }
-        
 
         [Test]
         public void FailedLogin()
@@ -123,7 +103,7 @@ namespace Tests
                 user.Email = "";
                 loginPage.Navigate().FillUser(user).Submit();
             }
-            catch (Exception e)
+            catch (MessageException e)
             {
                 Assert.AreEqual("Email is empty", e.Message);   
             }
@@ -134,7 +114,7 @@ namespace Tests
                 user.Email = "teeeeeeest@test.te";
                 loginPage.Navigate().FillUser(user).Submit();
             }
-            catch (Exception e)
+            catch (MessageException e)
             {
                 Assert.AreEqual("Email is incorrect", e.Message);   
             }
@@ -145,7 +125,7 @@ namespace Tests
                 user.Password = "";
                 loginPage.Navigate().FillUser(user).Submit();
             }
-            catch (Exception e)
+            catch (MessageException e)
             {
                 Assert.AreEqual("Password is empty", e.Message);   
             }
@@ -156,29 +136,25 @@ namespace Tests
                 user.Password = "testtesttest";
                 loginPage.Navigate().FillUser(user).Submit();
             }
-            catch (Exception e)
+            catch (MessageException e)
             {
                 Assert.AreEqual("Password is incorrect", e.Message);   
             }
         }
-        
 
         [Test]
         public void SuccessFollow()
         {
             LoginPage loginPage = new LoginPage(_driver);
             User user = User.GetValidUserForLogin();
-            try
-            {
-                HomePage homePage = loginPage.Navigate().FillUser(user).Submit();
-                homePage.Follow("apple").Follow("wylsacom").Follow("anubeloredelana");
-                homePage.Navigate();
-                homePage.ToLogin();
-            }
-            catch (Exception e)
-            {
-                Assert.AreEqual("", e.Message);
-            }
+            HomePage homePage = loginPage.Navigate().FillUser(user).Submit();
+            homePage.Follow("anubeloredelana").Follow("wylsacom").Follow("apple");
+            List<FollowUser> users = homePage.GetFollows();
+            homePage.Navigate();
+            homePage.ToLogin();
+            Assert.AreEqual("anubeloredelana", users[0].Name);
+            Assert.AreEqual("wylsacom", users[1].Name);
+            Assert.AreEqual("apple", users[2].Name);
         }
 
         [Test]
@@ -186,49 +162,90 @@ namespace Tests
         {
             LoginPage loginPage = new LoginPage(_driver);
             User user = User.GetValidUserForLogin();
+            HomePage homePage = loginPage.Navigate().FillUser(user).Submit();
+            homePage.Unfollow("apple").Unfollow("wylsacom").Unfollow("anubeloredelana");
             try
             {
-                HomePage homePage = loginPage.Navigate().FillUser(user).Submit();
-                homePage.Unfollow("apple").Unfollow("wylsacom").Unfollow("anubeloredelana");
-                homePage.Navigate();
-                homePage.ToLogin();
+                homePage.GetFollows();
             }
-            catch (Exception e)
+            catch (MessageException exception)
             {
-                Assert.AreEqual("", e.Message);
+                Assert.AreEqual("Follow is empty", exception.Message);
+            }
+            finally
+            {
+                homePage.Navigate();
+                homePage.ToLogin();   
             }
         }
-        
-        
+
+
         [Test]
         public void LoginHomeLoginRegister()
         {
             LoginPage loginPage = new LoginPage(_driver);
             User user = User.GetValidUserForLogin();
-            try
-            {
-                Assert.True(loginPage.Navigate().FillUser(user).Submit().ToLogin().ToRegister().FillUser(user).AreEqual());
-            }
-            catch (Exception exception)
-            {
-                
-            }
+            Assert.True(loginPage.Navigate().FillUser(user).Submit().ToLogin().ToRegister().FillUser(user).AreEqual());
         }
-        
+
         [Test]
         public void SuccessSettings()
         {
             LoginPage loginPage = new LoginPage(_driver);
             User user = User.GetValidUserForLogin();
-            user.FilePath = @"/Users/halloween/Downloads/white_mountains_peaks_lake_reflection_nature-wallpaper-1440x2560.jpg";
+            user.FilePath =
+                @"/Users/halloween/Downloads/white_mountains_peaks_lake_reflection_nature-wallpaper-1440x2560.jpg";
+
+            Assert.True(loginPage.Navigate().FillUser(user).Submit().ToSettings().FillUser(user).Submit().ToHome()
+                .ToLogin().AreEqual());
+        }
+
+        [Test]
+        public void SuccessFindPosts()
+        {
+            LoginPage loginPage = new LoginPage(_driver);
+            User user = User.GetValidUserForLogin();
+
+            HomePage homePage = loginPage.Navigate().FillUser(user).Submit();
+            List<Post> posts = homePage.Follow("apple").GetPosts();
+            homePage.Unfollow("apple");
+            homePage.ToLogin();
+            
+            Assert.True(posts.Count > 0);
+        }
+
+        [Test]
+        public void FailedFindPosts()
+        {
+            LoginPage loginPage = new LoginPage(_driver);
+            User user = User.GetValidUserForLogin();
+
+            HomePage homePage = loginPage.Navigate().FillUser(user).Submit();
             try
             {
-                Assert.True(loginPage.Navigate().FillUser(user).Submit().ToSettings().FillUser(user).Submit().ToHome().ToLogin().AreEqual());
+                List<Post> posts = homePage.GetPosts();
             }
-            catch (Exception e)
+            catch (MessageException exception)
             {
-                
+                Assert.AreEqual("No follows", exception.Message);
+            }
+            finally
+            {
+                homePage.ToLogin();
             }
         }
+
+        [Test]
+        public void RegistrationAndLogin()
+        {
+            RegisterPage registerPage = new RegisterPage(_driver);
+            User user = User.GetRandomUser();
+            HomePage homePage = registerPage.Navigate().FillUser(user).Submit();
+            LoginPage loginPage = homePage.ToLogin();
+            homePage = loginPage.Navigate().FillUser(user).Submit();
+            Assert.True(homePage.AreEqual());
+            homePage.ToLogin();
+        }
+
     }
 }

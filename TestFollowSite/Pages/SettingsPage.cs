@@ -3,6 +3,8 @@ using System.IO;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
 using SeleniumExtras.PageObjects;
+using Tests.Exception;
+using Tests.Helpers;
 using Tests.Models;
 
 namespace Tests.Pages
@@ -10,7 +12,7 @@ namespace Tests.Pages
     public class SettingsPage:IPage
     {
         private IWebDriver _driver;
-        private readonly string _url = @"http://127.0.0.1:8080/update";
+        private readonly string _url = @"http://127.0.0.1:8082/update";
         
         [FindsBy(How = How.ClassName, Using = "file-input")] 
         private IWebElement _fileInput;
@@ -50,32 +52,26 @@ namespace Tests.Pages
         public SettingsPage Submit()
         {
             _submitButton.Click();
-            _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromMilliseconds(200);
-            try
-            {
-                if (_driver.FindElement(By.Id(LOGIN_EMPTY)) != null)
-                {
-                    throw new Exception("Login is empty");
-                }
 
-                if (_driver.FindElement(By.Id(LOGIN_LESS_CHARACTER)) != null)
-                {
-                    throw new Exception("Login is small");
-                }
-                
-                if (_driver.FindElement(By.Id(PASSWORD_LESS_CHARACTER)) != null)
-                {
-                    throw new Exception("Password is small");
-                }
-            }
-            catch (Exception exception)
+            if (WebElementHelper.HasElement(_driver, By.Id(LOGIN_EMPTY), TimeSpan.FromMilliseconds(50)))
             {
+                throw new MessageException("Login is empty");
+            }
+
+            if (WebElementHelper.HasElement(_driver, By.Id(LOGIN_LESS_CHARACTER), TimeSpan.FromMilliseconds(50)))
+            {
+                throw new MessageException("Login is small");
+            }
+
+            if (WebElementHelper.HasElement(_driver, By.Id(PASSWORD_LESS_CHARACTER), TimeSpan.FromMilliseconds(50)))
+            {
+                throw new MessageException("Password is small");
             }
 
             this.Navigate();
             return new SettingsPage(_driver);
         }
-        
+
         public SettingsPage Navigate()
         {
             _driver.Navigate().GoToUrl(_url);
@@ -89,17 +85,10 @@ namespace Tests.Pages
         public HomePage ToHome()
         {
             _exitInput.Click();
-            _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(5);
-            try
+
+            if (WebElementHelper.HasElement(_driver, By.Id(HOME_PAGE_NICKNAME), TimeSpan.FromSeconds(1)))
             {
-                if (_driver.FindElement(By.Id(HOME_PAGE_NICKNAME)) != null)
-                {
-                    return new HomePage(_driver);
-                }
-            }
-            catch (Exception e)
-            {
-                
+                return new HomePage(_driver);
             }
 
             return null;
